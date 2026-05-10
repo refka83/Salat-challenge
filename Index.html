@@ -1,0 +1,572 @@
+```html
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحدي الـ 40 يوماً للصلاة 🌟</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #4cc9f0;
+            --success: #4caf50;
+            --gold: #ffb703;
+            --bg: #eef2f3;
+            --white: #ffffff;
+            --card-bg: #ffffff;
+            --text-dark: #2b2d42;
+            --text-muted: #8d99ae;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text-dark);
+            background-image: radial-gradient(#cbd5e0 0.5px, transparent 0.5px);
+            background-size: 20px 20px;
+        }
+
+        .app-container {
+            max-width: 500px;
+            margin: auto;
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 2.5rem 1.5rem;
+            border-bottom-left-radius: 40px;
+            border-bottom-right-radius: 40px;
+            box-shadow: 0 8px 25px rgba(67, 97, 238, 0.3);
+            text-align: center;
+        }
+
+        .title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.95;
+            margin-top: 8px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+        }
+
+        .stat-card strong {
+            display: block;
+            font-size: 1.4rem;
+        }
+
+        .stat-card span {
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .progress-section {
+            background: rgba(255, 255, 255, 0.15);
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 20px;
+        }
+
+        .progress-bar-bg {
+            height: 14px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--gold);
+            width: 0%;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px var(--gold);
+        }
+
+        main {
+            padding: 1.5rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .grid-40 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .day-box {
+            aspect-ratio: 1;
+            background: var(--white);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+            border: 3px solid transparent;
+        }
+
+        .day-box.completed {
+            background: #dcfce7;
+            border-color: #4caf50;
+        }
+
+        .day-box.locked {
+            opacity: 0.5;
+            background: #f1f5f9;
+            cursor: not-allowed;
+        }
+
+        .day-box.active {
+            border-color: var(--primary);
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(67, 97, 238, 0.2);
+        }
+
+        .day-num {
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+
+        .day-box.completed .day-num {
+            color: var(--success);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            justify-content: center;
+            align-items: flex-end;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            border-top-left-radius: 35px;
+            border-top-right-radius: 35px;
+            padding: 2rem 1.5rem;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .prayer-list {
+            margin: 20px 0;
+        }
+
+        .prayer-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 18px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .prayer-item.done {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+        }
+
+        .prayer-checkbox {
+            width: 24px;
+            height: 24px;
+            margin-left: 15px;
+            accent-color: var(--success);
+            cursor: pointer;
+        }
+
+        .prayer-name {
+            font-weight: 700;
+            flex: 1;
+        }
+
+        .prayer-xp {
+            font-size: 0.8rem;
+            color: var(--gold);
+            background: #fffbeb;
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-weight: 800;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 20px;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-ghost { background: #f1f5f9; color: var(--text-dark); }
+        .btn-reset { background: #fee2e2; color: #ef4444; margin-top: 40px; }
+
+        /* Login Screen */
+        #loginScreen {
+            position: fixed;
+            inset: 0;
+            background: white;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .input-name {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 20px;
+            font-size: 1.2rem;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .badge-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 20px rgba(255, 183, 3, 0.3);
+        }
+
+        /* Toast Message */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--text-dark);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: 600;
+            z-index: 3000;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- الشاشة الافتتاحية -->
+    <div id="loginScreen">
+        <div class="badge-icon"><i data-lucide="sun" size="40"></i></div>
+        <h1 style="color:var(--primary)">مرحباً يا بطل الصلاة! 🕌</h1>
+        <p style="color:var(--text-muted)">هل أنت مستعد لتحدي 40 يوماً من الصلاة؟ أخبرنا باسمك لنبدأ!</p>
+        <input type="text" id="userNameInput" class="input-name" placeholder="اكتب اسمك هنا...">
+        <button class="btn btn-primary" onclick="startApp()">ابدأ التحدي الآن 🚀</button>
+    </div>
+
+    <div class="app-container">
+        <header>
+            <div class="title" id="appTitle">تحدي الـ 40 يوماً</div>
+            <div class="subtitle" id="welcomeMsg">أهلاً بك في رحلتك مع الله</div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <strong id="totalXP">0</strong>
+                    <span>نقطة نور ✨</span>
+                </div>
+                <div class="stat-card">
+                    <strong id="currentLevel">مبتدئ</strong>
+                    <span>الرتبة</span>
+                </div>
+            </div>
+
+            <div class="progress-section">
+                <div style="display:flex; justify-content:space-between; font-weight:700">
+                    <span>التقدم الإجمالي</span>
+                    <span id="percentLabel">0%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="mainProgress"></div>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="section-header">
+                <h2 style="font-weight:800; font-size:1.3rem">📅 خريطة التحدي</h2>
+                <div style="font-size:0.8rem; color:var(--text-muted)">يمكنك الانتقال لليوم التالي دائماً</div>
+            </div>
+
+            <div class="grid-40" id="daysGrid"></div>
+
+            <button class="btn btn-reset" onclick="resetAll()">إعادة ضبط التحدي (للبدء من جديد)</button>
+        </main>
+    </div>
+
+    <!-- نافذة المهام اليومية -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2 id="modalDayTitle" style="text-align:center; color:var(--primary); margin-bottom:5px"></h2>
+            <p style="text-align:center; color:var(--text-muted); margin-bottom:20px">ضع علامة على الصلوات التي صليتها اليوم لجمع النقاط!</p>
+            
+            <div class="prayer-list" id="prayerList"></div>
+
+            <button id="completeDayBtn" class="btn btn-primary" onclick="confirmDay()">حفظ التقدم والانتقال 🚀</button>
+            <button class="btn btn-ghost" onclick="closeModal()">إغلاق</button>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        const STORAGE_KEY = "prayer_challenge_kids_v1";
+        const prayers = [
+            { id: 'fajr', name: 'الفجر', xp: 20 },
+            { id: 'dhuhr', name: 'الظهر', xp: 15 },
+            { id: 'asr', name: 'العصر', xp: 15 },
+            { id: 'maghrib', name: 'المغرب', xp: 15 },
+            { id: 'isha', name: 'العشاء', xp: 20 }
+        ];
+
+        let state = {
+            userName: "",
+            completedDays: [], // list of day numbers
+            prayersData: {}, // { "day1": { "fajr": true, ... } }
+            totalXP: 0
+        };
+
+        let selectedDay = null;
+
+        // تهيئة التطبيق
+        function init() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                state = JSON.parse(saved);
+                document.getElementById('loginScreen').style.display = 'none';
+            }
+            renderDays();
+            updateStats();
+            lucide.createIcons();
+        }
+
+        function startApp() {
+            const name = document.getElementById('userNameInput').value.trim();
+            if (!name) {
+                showToast("من فضلك اكتب اسمك يا بطل!");
+                return;
+            }
+            state.userName = name;
+            save();
+            document.getElementById('loginScreen').style.display = 'none';
+            updateStats();
+        }
+
+        function renderDays() {
+            const grid = document.getElementById('daysGrid');
+            grid.innerHTML = "";
+
+            for (let i = 1; i <= 40; i++) {
+                const isCompleted = state.completedDays.includes(i);
+                // مسموح بفتح اليوم إذا كان هو اليوم الأول أو إذا كان اليوم السابق "مكتمل" (محفوظ)
+                const isLocked = i > 1 && !state.completedDays.includes(i - 1);
+                const isActive = i === (state.completedDays.length + 1);
+
+                const dayBox = document.createElement('div');
+                dayBox.className = `day-box ${isCompleted ? 'completed' : ''} ${isLocked ? 'locked' : ''} ${isActive ? 'active' : ''}`;
+                
+                dayBox.innerHTML = `
+                    <span class="day-num">${i}</span>
+                    <span style="font-size:0.6rem; margin-top:5px">${isCompleted ? '⭐' : isActive ? 'جاري' : ''}</span>
+                `;
+
+                dayBox.onclick = () => {
+                    if (isLocked) {
+                        showToast("أكمل الأيام السابقة بالترتيب يا بطل! 💪");
+                        return;
+                    }
+                    openDay(i);
+                };
+
+                grid.appendChild(dayBox);
+            }
+        }
+
+        function openDay(dayNum) {
+            selectedDay = dayNum;
+            document.getElementById('modalDayTitle').innerText = `مهام اليوم ${dayNum}`;
+            const list = document.getElementById('prayerList');
+            list.innerHTML = "";
+
+            if (!state.prayersData[dayNum]) {
+                state.prayersData[dayNum] = {};
+            }
+
+            prayers.forEach(prayer => {
+                const isDone = state.prayersData[dayNum][prayer.id] || false;
+                const item = document.createElement('div');
+                item.className = `prayer-item ${isDone ? 'done' : ''}`;
+                item.onclick = () => togglePrayer(dayNum, prayer.id);
+
+                item.innerHTML = `
+                    <input type="checkbox" class="prayer-checkbox" ${isDone ? 'checked' : ''} onclick="event.stopPropagation(); togglePrayer(${dayNum}, '${prayer.id}')">
+                    <span class="prayer-name">${prayer.name}</span>
+                    <span class="prayer-xp">+${prayer.xp}</span>
+                `;
+                list.appendChild(item);
+            });
+
+            document.getElementById('modalOverlay').style.display = 'flex';
+        }
+
+        function togglePrayer(dayNum, prayerId) {
+            state.prayersData[dayNum][prayerId] = !state.prayersData[dayNum][prayerId];
+            save();
+            openDay(dayNum); // Refresh UI
+            updateStats();
+        }
+
+        function confirmDay() {
+            const dayData = state.prayersData[selectedDay] || {};
+            const count = Object.values(dayData).filter(v => v === true).length;
+
+            if (!state.completedDays.includes(selectedDay)) {
+                state.completedDays.push(selectedDay);
+                save();
+                
+                if (count === 5) {
+                    // احتفال كبير إذا أكمل الكل
+                    confetti({
+                        particleCount: 150,
+                        spread: 70,
+                        origin: { y: 0.6 },
+                        colors: ['#ffb703', '#4361ee', '#4cc9f0']
+                    });
+                    showToast(`رائع جداً! صليت كل الصلوات في اليوم ${selectedDay} 🏆`);
+                } else if (count > 0) {
+                    // احتفال بسيط إذا صلى البعض
+                    confetti({
+                        particleCount: 40,
+                        spread: 50,
+                        origin: { y: 0.7 }
+                    });
+                    showToast(`أحسنت يا ${state.userName}! تم حفظ تقدم اليوم ${selectedDay} ✨`);
+                } else {
+                    showToast(`تم الانتقال لليوم التالي، حاول الصلاة غداً يا بطل! ❤️`);
+                }
+            }
+            closeModal();
+            renderDays();
+            updateStats();
+        }
+
+        function updateStats() {
+            let xp = 0;
+            Object.keys(state.prayersData).forEach(day => {
+                prayers.forEach(p => {
+                    if (state.prayersData[day][p.id]) xp += p.xp;
+                });
+            });
+            state.totalXP = xp;
+
+            document.getElementById('totalXP').innerText = xp;
+            document.getElementById('welcomeMsg').innerText = `أهلاً يا ${state.userName}، استمر في جمع النقاط!`;
+            
+            const percent = Math.round((state.completedDays.length / 40) * 100);
+            document.getElementById('mainProgress').style.width = `${percent}%`;
+            document.getElementById('percentLabel').innerText = `${percent}%`;
+
+            let level = "مبتدئ 👶";
+            if (xp > 500) level = "فارس الصلاة 🛡️";
+            if (xp > 1500) level = "نجم المسجد 🌟";
+            if (xp > 3000) level = "بطل الـ 40 يوماً 👑";
+            document.getElementById('currentLevel').innerText = level;
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').style.display = 'none';
+        }
+
+        function save() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.style.display = 'block';
+            setTimeout(() => { t.style.display = 'none'; }, 3000);
+        }
+
+        function resetAll() {
+            if (confirm("هل أنت متأكد؟ سيتم حذف كل تقدمك لتجربة التحدي من جديد.")) {
+                localStorage.removeItem(STORAGE_KEY);
+                location.reload();
+            }
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
+
+```
