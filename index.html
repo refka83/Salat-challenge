@@ -17,11 +17,11 @@
         :root {
             --primary: #4361ee;
             --secondary: #4cc9f0;
-            --success: #4caf50;
+            --success: #22c55e;
+            --partial: #93c5fd;
             --gold: #ffb703;
             --bg: #eef2f3;
             --white: #ffffff;
-            --card-bg: #ffffff;
             --text-dark: #2b2d42;
             --text-muted: #8d99ae;
         }
@@ -149,9 +149,16 @@
             border: 3px solid transparent;
         }
 
-        .day-box.completed {
+        /* يوم كامل الصلوات */
+        .day-box.perfect {
             background: #dcfce7;
-            border-color: #4caf50;
+            border-color: var(--success);
+        }
+
+        /* يوم ناقص الصلوات */
+        .day-box.partial {
+            background: #eff6ff;
+            border-color: var(--partial);
         }
 
         .day-box.locked {
@@ -172,9 +179,8 @@
             color: var(--primary);
         }
 
-        .day-box.completed .day-num {
-            color: var(--success);
-        }
+        .day-box.perfect .day-num { color: #166534; }
+        .day-box.partial .day-num { color: #1e40af; }
 
         /* Modal Styles */
         .modal-overlay {
@@ -260,7 +266,6 @@
         .btn-ghost { background: #f1f5f9; color: var(--text-dark); }
         .btn-reset { background: #fee2e2; color: #ef4444; margin-top: 40px; }
 
-        /* Login Screen */
         #loginScreen {
             position: fixed;
             inset: 0;
@@ -297,7 +302,6 @@
             box-shadow: 0 10px 20px rgba(255, 183, 3, 0.3);
         }
 
-        /* Toast Message */
         .toast {
             position: fixed;
             top: 20px;
@@ -315,7 +319,6 @@
 </head>
 <body>
 
-    <!-- الشاشة الافتتاحية -->
     <div id="loginScreen">
         <div class="badge-icon"><i data-lucide="sun" size="40"></i></div>
         <h1 style="color:var(--primary)">مرحباً يا بطل الصلاة! 🕌</h1>
@@ -354,7 +357,6 @@
         <main>
             <div class="section-header">
                 <h2 style="font-weight:800; font-size:1.3rem">📅 خريطة التحدي</h2>
-                <div style="font-size:0.8rem; color:var(--text-muted)">يمكنك الانتقال لليوم التالي دائماً</div>
             </div>
 
             <div class="grid-40" id="daysGrid"></div>
@@ -363,11 +365,10 @@
         </main>
     </div>
 
-    <!-- نافذة المهام اليومية -->
     <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
             <h2 id="modalDayTitle" style="text-align:center; color:var(--primary); margin-bottom:5px"></h2>
-            <p style="text-align:center; color:var(--text-muted); margin-bottom:20px">ضع علامة على الصلوات التي صليتها اليوم لجمع النقاط!</p>
+            <p style="text-align:center; color:var(--text-muted); margin-bottom:20px">ضع علامة على الصلوات التي صليتها اليوم!</p>
             
             <div class="prayer-list" id="prayerList"></div>
 
@@ -379,7 +380,7 @@
     <div id="toast" class="toast"></div>
 
     <script>
-        const STORAGE_KEY = "prayer_challenge_kids_v1";
+        const STORAGE_KEY = "prayer_challenge_kids_v2";
         const prayers = [
             { id: 'fajr', name: 'الفجر', xp: 20 },
             { id: 'dhuhr', name: 'الظهر', xp: 15 },
@@ -388,16 +389,19 @@
             { id: 'isha', name: 'العشاء', xp: 20 }
         ];
 
+        // أصوات بسيطة
+        const soundSuccess = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3');
+
         let state = {
             userName: "",
-            completedDays: [], // list of day numbers
-            prayersData: {}, // { "day1": { "fajr": true, ... } }
+            completedDays: [], 
+            perfectDays: [], // أيام تم فيها إنجاز كل الصلوات
+            prayersData: {}, 
             totalXP: 0
         };
 
         let selectedDay = null;
 
-        // تهيئة التطبيق
         function init() {
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
@@ -411,10 +415,7 @@
 
         function startApp() {
             const name = document.getElementById('userNameInput').value.trim();
-            if (!name) {
-                showToast("من فضلك اكتب اسمك يا بطل!");
-                return;
-            }
+            if (!name) return;
             state.userName = name;
             save();
             document.getElementById('loginScreen').style.display = 'none';
@@ -427,21 +428,30 @@
 
             for (let i = 1; i <= 40; i++) {
                 const isCompleted = state.completedDays.includes(i);
-                // مسموح بفتح اليوم إذا كان هو اليوم الأول أو إذا كان اليوم السابق "مكتمل" (محفوظ)
+                const isPerfect = state.perfectDays.includes(i);
                 const isLocked = i > 1 && !state.completedDays.includes(i - 1);
                 const isActive = i === (state.completedDays.length + 1);
 
                 const dayBox = document.createElement('div');
-                dayBox.className = `day-box ${isCompleted ? 'completed' : ''} ${isLocked ? 'locked' : ''} ${isActive ? 'active' : ''}`;
+                let dayClass = 'day-box';
+                if (isCompleted) {
+                    dayClass += isPerfect ? ' perfect' : ' partial';
+                }
+                if (isLocked) dayClass += ' locked';
+                if (isActive) dayClass += ' active';
+                
+                dayBox.className = dayClass;
                 
                 dayBox.innerHTML = `
                     <span class="day-num">${i}</span>
-                    <span style="font-size:0.6rem; margin-top:5px">${isCompleted ? '⭐' : isActive ? 'جاري' : ''}</span>
+                    <span style="font-size:0.7rem; margin-top:5px">
+                        ${isPerfect ? '🏆' : isCompleted ? '⭐' : isActive ? 'جاري' : ''}
+                    </span>
                 `;
 
                 dayBox.onclick = () => {
                     if (isLocked) {
-                        showToast("أكمل الأيام السابقة بالترتيب يا بطل! 💪");
+                        showToast("أكمل الأيام السابقة أولاً يا بطل! 💪");
                         return;
                     }
                     openDay(i);
@@ -481,7 +491,7 @@
         function togglePrayer(dayNum, prayerId) {
             state.prayersData[dayNum][prayerId] = !state.prayersData[dayNum][prayerId];
             save();
-            openDay(dayNum); // Refresh UI
+            openDay(dayNum);
             updateStats();
         }
 
@@ -491,29 +501,34 @@
 
             if (!state.completedDays.includes(selectedDay)) {
                 state.completedDays.push(selectedDay);
-                save();
-                
-                if (count === 5) {
-                    // احتفال كبير إذا أكمل الكل
-                    confetti({
-                        particleCount: 150,
-                        spread: 70,
-                        origin: { y: 0.6 },
-                        colors: ['#ffb703', '#4361ee', '#4cc9f0']
-                    });
-                    showToast(`رائع جداً! صليت كل الصلوات في اليوم ${selectedDay} 🏆`);
-                } else if (count > 0) {
-                    // احتفال بسيط إذا صلى البعض
-                    confetti({
-                        particleCount: 40,
-                        spread: 50,
-                        origin: { y: 0.7 }
-                    });
-                    showToast(`أحسنت يا ${state.userName}! تم حفظ تقدم اليوم ${selectedDay} ✨`);
-                } else {
-                    showToast(`تم الانتقال لليوم التالي، حاول الصلاة غداً يا بطل! ❤️`);
-                }
             }
+
+            // إذا أتم كل الصلوات الـ 5
+            if (count === 5) {
+                if (!state.perfectDays.includes(selectedDay)) {
+                    state.perfectDays.push(selectedDay);
+                }
+                
+                // تشغيل الصوت والاحتفال
+                try {
+                    soundSuccess.currentTime = 0;
+                    soundSuccess.play();
+                } catch(e) { console.log("Audio play blocked"); }
+
+                confetti({
+                    particleCount: 150,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#22c55e', '#ffb703', '#ffffff']
+                });
+                showToast(`إنجاز مذهل! يوم كامل ومثالي 🏆`);
+            } else {
+                // إزالة من الأيام المثالية إذا عدل وحذف صلاة
+                state.perfectDays = state.perfectDays.filter(d => d !== selectedDay);
+                showToast(`أحسنت! تم حفظ تقدمك لليوم ${selectedDay} ✨`);
+            }
+
+            save();
             closeModal();
             renderDays();
             updateStats();
@@ -527,9 +542,7 @@
                 });
             });
             state.totalXP = xp;
-
             document.getElementById('totalXP').innerText = xp;
-            document.getElementById('welcomeMsg').innerText = `أهلاً يا ${state.userName}، استمر في جمع النقاط!`;
             
             const percent = Math.round((state.completedDays.length / 40) * 100);
             document.getElementById('mainProgress').style.width = `${percent}%`;
@@ -558,7 +571,7 @@
         }
 
         function resetAll() {
-            if (confirm("هل أنت متأكد؟ سيتم حذف كل تقدمك لتجربة التحدي من جديد.")) {
+            if (confirm("هل تريد البدء من جديد حقاً؟")) {
                 localStorage.removeItem(STORAGE_KEY);
                 location.reload();
             }
