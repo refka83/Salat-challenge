@@ -18,12 +18,14 @@
             --primary: #4361ee;
             --secondary: #4cc9f0;
             --success: #22c55e;
-            --partial: #93c5fd;
+            --success-light: #dcfce7;
             --gold: #ffb703;
             --bg: #eef2f3;
             --white: #ffffff;
             --text-dark: #2b2d42;
             --text-muted: #8d99ae;
+            --danger: #fee2e2;
+            --danger-text: #ef4444;
         }
 
         * {
@@ -50,63 +52,42 @@
         header {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
-            padding: 2.5rem 1.5rem;
+            padding: 2rem 1.5rem;
             border-bottom-left-radius: 40px;
             border-bottom-right-radius: 40px;
             box-shadow: 0 8px 25px rgba(67, 97, 238, 0.3);
             text-align: center;
         }
 
-        .title {
-            font-size: 2rem;
-            font-weight: 800;
-            margin: 0;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
+        .title { font-size: 1.8rem; font-weight: 800; margin: 0; }
 
-        .subtitle {
-            font-size: 1rem;
-            opacity: 0.95;
-            margin-top: 8px;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 20px;
-        }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
 
         .stat-card {
             background: rgba(255, 255, 255, 0.2);
-            padding: 15px;
+            padding: 12px;
             border-radius: 20px;
             backdrop-filter: blur(5px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        .stat-card strong {
-            display: block;
-            font-size: 1.4rem;
-        }
-
-        .stat-card span {
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
+        .stat-card strong { font-size: 1.1rem; display: block; }
 
         .progress-section {
             background: rgba(255, 255, 255, 0.15);
-            margin-top: 20px;
-            padding: 15px;
+            margin-top: 15px;
+            padding: 12px;
             border-radius: 20px;
         }
 
         .progress-bar-bg {
-            height: 14px;
+            height: 10px;
             background: rgba(255, 255, 255, 0.3);
             border-radius: 10px;
+            margin-top: 8px;
             overflow: hidden;
-            margin-top: 10px;
         }
 
         .progress-bar-fill {
@@ -114,24 +95,14 @@
             background: var(--gold);
             width: 0%;
             transition: width 0.5s ease;
-            box-shadow: 0 0 10px var(--gold);
         }
 
-        main {
-            padding: 1.5rem;
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
+        main { padding: 1.5rem; }
 
         .grid-40 {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
+            gap: 10px;
         }
 
         .day-box {
@@ -145,439 +116,344 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             cursor: pointer;
             position: relative;
-            transition: all 0.2s ease;
             border: 3px solid transparent;
+            transition: 0.2s;
         }
 
-        /* يوم كامل الصلوات */
-        .day-box.perfect {
-            background: #dcfce7;
-            border-color: var(--success);
-        }
+        .day-box.past-done { background: var(--success-light); border-color: var(--success); opacity: 0.9; }
+        .day-box.past-failed { background: var(--danger); border-color: var(--danger-text); opacity: 0.9; }
+        .day-box.today { border-color: var(--gold); transform: scale(1.05); box-shadow: 0 0 15px rgba(255,183,3,0.3); z-index: 10; }
+        .day-box.future { opacity: 0.4; background: #f1f5f9; cursor: not-allowed; }
 
-        /* يوم ناقص الصلوات */
-        .day-box.partial {
-            background: #eff6ff;
-            border-color: var(--partial);
-        }
+        .day-num { font-weight: 800; font-size: 1.1rem; color: var(--primary); }
 
-        .day-box.locked {
-            opacity: 0.5;
-            background: #f1f5f9;
-            cursor: not-allowed;
-        }
-
-        .day-box.active {
-            border-color: var(--primary);
-            transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(67, 97, 238, 0.2);
-        }
-
-        .day-num {
-            font-weight: 800;
-            font-size: 1.2rem;
-            color: var(--primary);
-        }
-
-        .day-box.perfect .day-num { color: #166534; }
-        .day-box.partial .day-num { color: #1e40af; }
-
-        /* Modal Styles */
         .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.6);
-            display: none;
-            justify-content: center;
-            align-items: flex-end;
-            z-index: 1000;
+            position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+            display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px;
         }
 
         .modal-content {
-            background: white;
-            width: 100%;
-            max-width: 500px;
-            border-top-left-radius: 35px;
-            border-top-right-radius: 35px;
-            padding: 2rem 1.5rem;
-            animation: slideUp 0.3s ease-out;
+            background: white; width: 100%; max-width: 400px; border-radius: 30px;
+            padding: 2rem 1.5rem; animation: popIn 0.3s ease;
         }
 
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
-
-        .prayer-list {
-            margin: 20px 0;
-        }
+        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
         .prayer-item {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            background: #f8fafc;
-            border-radius: 18px;
-            margin-bottom: 12px;
-            cursor: pointer;
-            transition: 0.2s;
-            border: 2px solid transparent;
+            display: flex; align-items: center; padding: 12px; background: #f8fafc;
+            border-radius: 15px; margin-bottom: 10px; cursor: pointer; border: 2px solid transparent;
         }
+        .prayer-item.done { background: #f0fdf4; border-color: #bbf7d0; }
+        .prayer-checkbox { width: 22px; height: 22px; margin-left: 12px; }
 
-        .prayer-item.done {
-            background: #f0fdf4;
-            border-color: #bbf7d0;
-        }
-
-        .prayer-checkbox {
-            width: 24px;
-            height: 24px;
-            margin-left: 15px;
-            accent-color: var(--success);
-            cursor: pointer;
-        }
-
-        .prayer-name {
-            font-weight: 700;
-            flex: 1;
-        }
-
-        .prayer-xp {
-            font-size: 0.8rem;
-            color: var(--gold);
-            background: #fffbeb;
-            padding: 4px 10px;
-            border-radius: 10px;
-            font-weight: 800;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 1rem;
-            border-radius: 20px;
-            border: none;
-            font-size: 1.1rem;
-            font-weight: 800;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
+        .btn { width: 100%; padding: 0.8rem; border-radius: 15px; border: none; font-weight: 800; cursor: pointer; margin-top: 8px; }
         .btn-primary { background: var(--primary); color: white; }
-        .btn-ghost { background: #f1f5f9; color: var(--text-dark); }
-        .btn-reset { background: #fee2e2; color: #ef4444; margin-top: 40px; }
+        .btn-success { background: var(--success); color: white; }
 
-        #loginScreen {
-            position: fixed;
-            inset: 0;
-            background: white;
-            z-index: 2000;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-            text-align: center;
+        .gender-btn {
+            flex: 1; padding: 10px; border: 2px solid #ddd; border-radius: 12px; cursor: pointer; background: white; transition: 0.2s;
+        }
+        .gender-btn.active { border-color: var(--primary); background: #eef2ff; color: var(--primary); }
+
+        #loginScreen, #certificateScreen, #retryScreen {
+            position: fixed; inset: 0; background: white; z-index: 2000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; text-align: center;
         }
 
-        .input-name {
-            width: 100%;
-            padding: 1rem;
-            border: 2px solid #e2e8f0;
-            border-radius: 20px;
-            font-size: 1.2rem;
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        .badge-icon {
-            width: 80px;
-            height: 80px;
-            background: var(--gold);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        #certificateScreen, #retryScreen {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
             color: white;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 20px rgba(255, 183, 3, 0.3);
-        }
-
-        .toast {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--text-dark);
-            color: white;
-            padding: 12px 25px;
-            border-radius: 50px;
-            font-weight: 600;
-            z-index: 3000;
             display: none;
         }
+
+        .cert-card {
+            background: white; color: #1e293b; padding: 2rem; border-radius: 20px;
+            border: 8px double var(--gold); position: relative; box-shadow: 0 0 30px rgba(255, 183, 3, 0.4);
+            max-width: 90%;
+        }
+
+        .reward-icon { font-size: 1.2rem; margin-top: 2px; }
     </style>
 </head>
 <body>
 
+    <!-- شاشة البداية -->
     <div id="loginScreen">
-        <div class="badge-icon"><i data-lucide="sun" size="40"></i></div>
-        <h1 style="color:var(--primary)">مرحباً يا بطل الصلاة! 🕌</h1>
-        <p style="color:var(--text-muted)">هل أنت مستعد لتحدي 40 يوماً من الصلاة؟ أخبرنا باسمك لنبدأ!</p>
-        <input type="text" id="userNameInput" class="input-name" placeholder="اكتب اسمك هنا...">
-        <button class="btn btn-primary" onclick="startApp()">ابدأ التحدي الآن 🚀</button>
+        <div style="background: var(--gold); width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; margin-bottom: 20px;">
+            <i data-lucide="zap" size="35"></i>
+        </div>
+        <h1 style="color:var(--primary)">مرحباً يا بطل!</h1>
+        <p>اختر اسمك وجنسك لتبدأ التحدي:</p>
+        <input type="text" id="userNameInput" style="width: 100%; padding: 1rem; border: 2px solid #ddd; border-radius: 15px; margin: 15px 0; text-align: center;" placeholder="اكتب اسمك هنا...">
+        
+        <div style="display:flex; gap:10px; width:100%; margin-bottom:15px;">
+            <div class="gender-btn" id="btnBoy" onclick="setGender('boy')">ولد 👦</div>
+            <div class="gender-btn" id="btnGirl" onclick="setGender('girl')">بنت 👧</div>
+        </div>
+
+        <button class="btn btn-primary" onclick="startChallenge()">ابدأ التحدي 🚀</button>
+    </div>
+
+    <!-- شاشة الشهادة النهائية -->
+    <div id="certificateScreen">
+        <div class="cert-card">
+            <i data-lucide="award" size="60" style="color:var(--gold); margin-bottom: 15px;"></i>
+            <h1 id="certTitle" style="margin: 5px 0;">وسام البطل الصامد</h1>
+            <p style="font-size: 1.1rem;"><span id="certGreeting"></span> <b id="certName" style="color:var(--primary)"></b>!</p>
+            <p id="certBody" style="line-height: 1.6;"></p>
+            <div style="margin-top: 20px; border-top: 2px dashed #eee; padding-top: 15px;">
+                <p style="font-size: 0.8rem; color: #64748b;">مستوى الإنجاز: <span id="finalRank"></span></p>
+                <button class="btn btn-primary" onclick="closeCert()">العودة للتطبيق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- شاشة إعادة المحاولة (إذا كان الأداء ضعيفاً) -->
+    <div id="retryScreen">
+        <div class="cert-card" style="border-color: var(--primary);">
+            <i data-lucide="refresh-cw" size="60" style="color:var(--primary); margin-bottom: 15px;"></i>
+            <h1>محاولة رائعة!</h1>
+            <p>يا بطل، لقد وصلت لليوم الأربعين وهذا رائع!</p>
+            <p style="line-height: 1.6;">لكن يبدو أنك فقدت الكثير من الصلوات في هذا التحدي. ما رأيك أن تعيد الكرة وتجرب من جديد لتكون صلواتك كلها ذهبية؟ نحن نثق بك!</p>
+            <button class="btn btn-primary" onclick="resetChallenge()">ابدأ تحدياً جديداً بنشاط 💪</button>
+        </div>
     </div>
 
     <div class="app-container">
         <header>
-            <div class="title" id="appTitle">تحدي الـ 40 يوماً</div>
-            <div class="subtitle" id="welcomeMsg">أهلاً بك في رحلتك مع الله</div>
-
+            <div class="title">تحدي الـ 40 يوماً</div>
             <div class="stats-grid">
                 <div class="stat-card">
                     <strong id="totalXP">0</strong>
-                    <span>نقطة نور ✨</span>
+                    <span>نقطة إنجاز <i data-lucide="zap" size="10"></i></span>
                 </div>
                 <div class="stat-card">
-                    <strong id="currentLevel">مبتدئ</strong>
+                    <strong id="currentLevel">مبتدئ 👶</strong>
                     <span>الرتبة</span>
                 </div>
             </div>
-
             <div class="progress-section">
-                <div style="display:flex; justify-content:space-between; font-weight:700">
-                    <span>التقدم الإجمالي</span>
+                <div style="display:flex; justify-content:space-between; font-size: 0.8rem;">
+                    <span>الإنجاز العام</span>
                     <span id="percentLabel">0%</span>
                 </div>
-                <div class="progress-bar-bg">
-                    <div class="progress-bar-fill" id="mainProgress"></div>
-                </div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" id="mainProgress"></div></div>
             </div>
         </header>
 
         <main>
-            <div class="section-header">
-                <h2 style="font-weight:800; font-size:1.3rem">📅 خريطة التحدي</h2>
+            <div style="background: #fff; padding: 12px; border-radius: 15px; margin-bottom: 20px; font-size: 0.85rem; border-right: 5px solid var(--gold); line-height: 1.5;">
+                <i data-lucide="star" size="14" style="color:var(--gold)"></i>
+                <b>نظام الأوسمة:</b> <br>
+                الكأس 🏆 للصلوات الكاملة، والنجمة ⭐ للصلوات الجزئية. حافظ على صلواتك!
             </div>
-
             <div class="grid-40" id="daysGrid"></div>
-
-            <button class="btn btn-reset" onclick="resetAll()">إعادة ضبط التحدي (للبدء من جديد)</button>
+            <button class="btn" style="background:#fee2e2; color:#ef4444; margin-top:30px; opacity: 0.7;" onclick="resetChallenge()">إعادة ضبط التحدي</button>
         </main>
     </div>
 
+    <!-- Modal -->
     <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <h2 id="modalDayTitle" style="text-align:center; color:var(--primary); margin-bottom:5px"></h2>
-            <p style="text-align:center; color:var(--text-muted); margin-bottom:20px">ضع علامة على الصلوات التي صليتها اليوم!</p>
-            
-            <div class="prayer-list" id="prayerList"></div>
-
-            <button id="completeDayBtn" class="btn btn-primary" onclick="confirmDay()">حفظ التقدم والانتقال 🚀</button>
-            <button class="btn btn-ghost" onclick="closeModal()">إغلاق</button>
+            <h2 id="modalDayTitle" style="text-align:center; color:var(--primary); margin-bottom: 20px;"></h2>
+            <div id="prayerList"></div>
+            <div style="margin-top: 25px; border-top: 1px solid #eee; padding-top: 15px;">
+                <button class="btn btn-success" onclick="finishDayPermanently()">إنهاء اليوم وفتح التالي 🔒</button>
+                <button class="btn btn-primary" onclick="closeModal()">حفظ مؤقت</button>
+            </div>
         </div>
     </div>
 
-    <div id="toast" class="toast"></div>
-
     <script>
-        const STORAGE_KEY = "prayer_challenge_kids_v2";
+        const STORAGE_KEY = "prayer_v15_gender_logic";
         const prayers = [
-            { id: 'fajr', name: 'الفجر', xp: 20 },
-            { id: 'dhuhr', name: 'الظهر', xp: 15 },
-            { id: 'asr', name: 'العصر', xp: 15 },
-            { id: 'maghrib', name: 'المغرب', xp: 15 },
-            { id: 'isha', name: 'العشاء', xp: 20 }
+            { id: 'f', name: 'الفجر', xp: 20 },
+            { id: 'd', name: 'الظهر', xp: 15 },
+            { id: 'a', name: 'العصر', xp: 15 },
+            { id: 'm', name: 'المغرب', xp: 15 },
+            { id: 'i', name: 'العشاء', xp: 20 }
         ];
 
-        // أصوات بسيطة
-        const soundSuccess = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3');
+        const successAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3');
 
         let state = {
-            userName: "",
-            completedDays: [], 
-            perfectDays: [], // أيام تم فيها إنجاز كل الصلوات
-            prayersData: {}, 
-            totalXP: 0
+            name: "",
+            gender: "boy",
+            currentDayIdx: 1,
+            history: {},
+            certShown: false
         };
 
-        let selectedDay = null;
+        function setGender(g) {
+            state.gender = g;
+            document.getElementById('btnBoy').className = 'gender-btn ' + (g==='boy'?'active':'');
+            document.getElementById('btnGirl').className = 'gender-btn ' + (g==='girl'?'active':'');
+        }
 
-        function init() {
-            const saved = localStorage.getItem(STORAGE_KEY);
-            if (saved) {
-                state = JSON.parse(saved);
-                document.getElementById('loginScreen').style.display = 'none';
+        function startChallenge() {
+            const name = document.getElementById('userNameInput').value.trim();
+            if(!name) return;
+            state.name = name;
+            save();
+            render();
+        }
+
+        function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+        function render() {
+            if(!state.name) return;
+            document.getElementById('loginScreen').style.display = 'none';
+            
+            if (state.currentDayIdx > 40 && !state.certShown) {
+                checkFinalResult();
             }
-            renderDays();
+
+            const grid = document.getElementById('daysGrid');
+            grid.innerHTML = "";
+
+            for(let i=1; i<=40; i++) {
+                const dayEntry = state.history[i] || { data: {}, finished: false };
+                const count = Object.values(dayEntry.data).filter(v => v).length;
+                let statusClass = "future", icon = "";
+
+                if (i < state.currentDayIdx) {
+                    if (dayEntry.finished) {
+                        if (count > 0) {
+                            statusClass = "past-done";
+                            icon = (count === 5) ? "🏆" : "⭐";
+                        } else { statusClass = "past-failed"; icon = "⭕"; }
+                    } else { statusClass = "past-failed"; icon = "⭕"; }
+                } else if (i === state.currentDayIdx) {
+                    statusClass = "today"; icon = "📍";
+                }
+
+                const box = document.createElement('div');
+                box.className = `day-box ${statusClass}`;
+                box.innerHTML = `
+                    ${i < state.currentDayIdx ? '<i data-lucide="lock" class="lock-icon" size="10"></i>' : ''}
+                    <span class="day-num">${i}</span>
+                    <span class="reward-icon">${icon}</span>
+                `;
+
+                box.onclick = () => {
+                    if(i > state.currentDayIdx) return showToast("أكمل يومك الحالي أولاً!");
+                    if(i < state.currentDayIdx) return showToast("هذا اليوم مغلق.");
+                    openDay(i);
+                };
+                grid.appendChild(box);
+            }
             updateStats();
             lucide.createIcons();
         }
 
-        function startApp() {
-            const name = document.getElementById('userNameInput').value.trim();
-            if (!name) return;
-            state.userName = name;
-            save();
-            document.getElementById('loginScreen').style.display = 'none';
-            updateStats();
-        }
+        function checkFinalResult() {
+            let successDays = 0;
+            for(let i=1; i<=40; i++) {
+                const day = state.history[i] || { data: {} };
+                if (Object.values(day.data).some(v => v)) successDays++;
+            }
 
-        function renderDays() {
-            const grid = document.getElementById('daysGrid');
-            grid.innerHTML = "";
-
-            for (let i = 1; i <= 40; i++) {
-                const isCompleted = state.completedDays.includes(i);
-                const isPerfect = state.perfectDays.includes(i);
-                const isLocked = i > 1 && !state.completedDays.includes(i - 1);
-                const isActive = i === (state.completedDays.length + 1);
-
-                const dayBox = document.createElement('div');
-                let dayClass = 'day-box';
-                if (isCompleted) {
-                    dayClass += isPerfect ? ' perfect' : ' partial';
-                }
-                if (isLocked) dayClass += ' locked';
-                if (isActive) dayClass += ' active';
-                
-                dayBox.className = dayClass;
-                
-                dayBox.innerHTML = `
-                    <span class="day-num">${i}</span>
-                    <span style="font-size:0.7rem; margin-top:5px">
-                        ${isPerfect ? '🏆' : isCompleted ? '⭐' : isActive ? 'جاري' : ''}
-                    </span>
-                `;
-
-                dayBox.onclick = () => {
-                    if (isLocked) {
-                        showToast("أكمل الأيام السابقة أولاً يا بطل! 💪");
-                        return;
-                    }
-                    openDay(i);
-                };
-
-                grid.appendChild(dayBox);
+            if (successDays < 20) {
+                document.getElementById('retryScreen').style.display = 'flex';
+            } else {
+                showCertificate();
             }
         }
 
-        function openDay(dayNum) {
-            selectedDay = dayNum;
-            document.getElementById('modalDayTitle').innerText = `مهام اليوم ${dayNum}`;
+        function showCertificate() {
+            const isGirl = state.gender === 'girl';
+            document.getElementById('certTitle').innerText = isGirl ? "وسام البطلة الصامدة" : "وسام البطل الصامد";
+            document.getElementById('certGreeting').innerText = isGirl ? "ألف مبروك يا بطلة" : "ألف مبروك يا بطل";
+            document.getElementById('certName').innerText = state.name;
+            document.getElementById('certBody').innerText = isGirl 
+                ? "لقد أتممتِ 40 يوماً من المجاهدة والمواظبة على الصلاة. أنتِ اليوم بطلة حقيقية وهذه ليست إلا البداية، الصلاة نور حياتكِ فاستمري عليها دائماً."
+                : "لقد أتممت 40 يوماً من المجاهدة والمواظبة على الصلاة. أنت اليوم بطل حقيقي وهذه ليست إلا البداية، الصلاة نور حياتك فاستمر عليها دائماً.";
+            
+            document.getElementById('finalRank').innerText = document.getElementById('currentLevel').innerText;
+            document.getElementById('certificateScreen').style.display = 'flex';
+            confetti({particleCount:300, spread:100, origin: {y: 0.5}});
+            successAudio.play();
+        }
+
+        function openDay(idx) {
+            const dayEntry = state.history[idx] || { data: {}, finished: false };
+            document.getElementById('modalDayTitle').innerText = `صلوات اليوم ${idx}`;
             const list = document.getElementById('prayerList');
             list.innerHTML = "";
-
-            if (!state.prayersData[dayNum]) {
-                state.prayersData[dayNum] = {};
-            }
-
-            prayers.forEach(prayer => {
-                const isDone = state.prayersData[dayNum][prayer.id] || false;
+            prayers.forEach(p => {
+                const isDone = dayEntry.data[p.id] || false;
                 const item = document.createElement('div');
                 item.className = `prayer-item ${isDone ? 'done' : ''}`;
-                item.onclick = () => togglePrayer(dayNum, prayer.id);
-
+                item.onclick = () => {
+                    dayEntry.data[p.id] = !dayEntry.data[p.id];
+                    state.history[idx] = dayEntry;
+                    openDay(idx);
+                };
                 item.innerHTML = `
-                    <input type="checkbox" class="prayer-checkbox" ${isDone ? 'checked' : ''} onclick="event.stopPropagation(); togglePrayer(${dayNum}, '${prayer.id}')">
-                    <span class="prayer-name">${prayer.name}</span>
-                    <span class="prayer-xp">+${prayer.xp}</span>
+                    <input type="checkbox" class="prayer-checkbox" ${isDone ? 'checked' : ''}>
+                    <span style="flex:1; font-weight:700">${p.name}</span>
+                    <span style="color:var(--gold); font-size:0.8rem">+${p.xp}</span>
                 `;
                 list.appendChild(item);
             });
-
             document.getElementById('modalOverlay').style.display = 'flex';
         }
 
-        function togglePrayer(dayNum, prayerId) {
-            state.prayersData[dayNum][prayerId] = !state.prayersData[dayNum][prayerId];
-            save();
-            openDay(dayNum);
-            updateStats();
-        }
-
-        function confirmDay() {
-            const dayData = state.prayersData[selectedDay] || {};
-            const count = Object.values(dayData).filter(v => v === true).length;
-
-            if (!state.completedDays.includes(selectedDay)) {
-                state.completedDays.push(selectedDay);
-            }
-
-            // إذا أتم كل الصلوات الـ 5
+        function finishDayPermanently() {
+            const idx = state.currentDayIdx;
+            const dayEntry = state.history[idx] || { data: {}, finished: false };
+            const count = Object.values(dayEntry.data).filter(v => v).length;
+            dayEntry.finished = true;
+            state.history[idx] = dayEntry;
+            state.currentDayIdx++;
             if (count === 5) {
-                if (!state.perfectDays.includes(selectedDay)) {
-                    state.perfectDays.push(selectedDay);
-                }
-                
-                // تشغيل الصوت والاحتفال
-                try {
-                    soundSuccess.currentTime = 0;
-                    soundSuccess.play();
-                } catch(e) { console.log("Audio play blocked"); }
-
-                confetti({
-                    particleCount: 150,
-                    spread: 70,
-                    origin: { y: 0.6 },
-                    colors: ['#22c55e', '#ffb703', '#ffffff']
-                });
-                showToast(`إنجاز مذهل! يوم كامل ومثالي 🏆`);
-            } else {
-                // إزالة من الأيام المثالية إذا عدل وحذف صلاة
-                state.perfectDays = state.perfectDays.filter(d => d !== selectedDay);
-                showToast(`أحسنت! تم حفظ تقدمك لليوم ${selectedDay} ✨`);
-            }
-
-            save();
-            closeModal();
-            renderDays();
-            updateStats();
+                successAudio.play(); 
+                confetti({particleCount:150, spread:70, origin: {y: 0.6}});
+                showToast("إنجاز مذهل! حصلت على الكأس 🏆");
+            } else if (count > 0) {
+                showToast("أحسنت! حصلت على نجمة اليوم ⭐");
+            } else { showToast("تم إغلاق اليوم. حاول الاجتهاد غداً! ⭕"); }
+            save(); closeModal(); render();
         }
 
         function updateStats() {
             let xp = 0;
-            Object.keys(state.prayersData).forEach(day => {
-                prayers.forEach(p => {
-                    if (state.prayersData[day][p.id]) xp += p.xp;
-                });
-            });
-            state.totalXP = xp;
+            for(let i=1; i<=40; i++) {
+                const day = state.history[i] || { data: {} };
+                prayers.forEach(p => { if(day.data[p.id]) xp += p.xp; });
+            }
             document.getElementById('totalXP').innerText = xp;
+            const progress = Math.min(100, Math.round(((state.currentDayIdx - 1) / 40) * 100));
+            document.getElementById('mainProgress').style.width = progress + "%";
+            document.getElementById('percentLabel').innerText = progress + "%";
             
-            const percent = Math.round((state.completedDays.length / 40) * 100);
-            document.getElementById('mainProgress').style.width = `${percent}%`;
-            document.getElementById('percentLabel').innerText = `${percent}%`;
-
-            let level = "مبتدئ 👶";
-            if (xp > 500) level = "فارس الصلاة 🛡️";
-            if (xp > 1500) level = "نجم المسجد 🌟";
-            if (xp > 3000) level = "بطل الـ 40 يوماً 👑";
-            document.getElementById('currentLevel').innerText = level;
+            const isGirl = state.gender === 'girl';
+            let rank = isGirl ? "مبتدئة 👶" : "مبتدئ 👶";
+            const day = state.currentDayIdx;
+            if(day > 5) rank = isGirl ? "مواظبة 🌱" : "مواظب 🌱";
+            if(day > 10) rank = isGirl ? "مجتهدة 🛡️" : "مجتهد 🛡️";
+            if(day > 20) rank = isGirl ? "فارسة الصلاة ⚔️" : "فارس الصلاة ⚔️";
+            if(day > 30) rank = isGirl ? "بطلة الـ 40 💎" : "بطل الـ 40 💎";
+            if(day >= 40) rank = isGirl ? "القدوة 👑" : "القدوة 👑";
+            document.getElementById('currentLevel').innerText = rank;
         }
 
-        function closeModal() {
-            document.getElementById('modalOverlay').style.display = 'none';
+        function closeModal() { save(); document.getElementById('modalOverlay').style.display = 'none'; render(); }
+        function showToast(m) { 
+            const t = document.createElement('div');
+            t.style = "position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.9); color:white; padding:12px 25px; border-radius:50px; z-index:5000; font-size:0.9rem; text-align:center; min-width:260px;";
+            t.innerText = m; document.body.appendChild(t);
+            setTimeout(() => t.remove(), 3000);
         }
-
-        function save() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-        }
-
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            t.innerText = msg;
-            t.style.display = 'block';
-            setTimeout(() => { t.style.display = 'none'; }, 3000);
-        }
-
-        function resetAll() {
-            if (confirm("هل تريد البدء من جديد حقاً؟")) {
+        function closeCert() { state.certShown = true; save(); document.getElementById('certificateScreen').style.display = 'none'; }
+        function resetChallenge() {
+            if(confirm("هل تريد تصفير التحدي والبدء من اليوم الأول؟")) {
                 localStorage.removeItem(STORAGE_KEY);
                 location.reload();
             }
         }
-
-        window.onload = init;
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if(saved) { state = JSON.parse(saved); render(); }
     </script>
 </body>
 </html>
