@@ -265,7 +265,7 @@
     </div>
 
     <script>
-        const STORAGE_KEY = "prayer_v15_gender_logic";
+        const STORAGE_KEY = "prayer_v16_reminder_logic";
         const prayers = [
             { id: 'f', name: 'الفجر', xp: 20 },
             { id: 'd', name: 'الظهر', xp: 15 },
@@ -352,7 +352,6 @@
                 const day = state.history[i] || { data: {} };
                 if (Object.values(day.data).some(v => v)) successDays++;
             }
-
             if (successDays < 20) {
                 document.getElementById('retryScreen').style.display = 'flex';
             } else {
@@ -380,11 +379,26 @@
             document.getElementById('modalDayTitle').innerText = `صلوات اليوم ${idx}`;
             const list = document.getElementById('prayerList');
             list.innerHTML = "";
-            prayers.forEach(p => {
+            
+            prayers.forEach((p, pIdx) => {
                 const isDone = dayEntry.data[p.id] || false;
                 const item = document.createElement('div');
                 item.className = `prayer-item ${isDone ? 'done' : ''}`;
+                
                 item.onclick = () => {
+                    // ميزة التذكير بالترتيب:
+                    if (!isDone) { // إذا كان الطفل يقوم بتحديد الصلاة الآن
+                        let missedPrayers = [];
+                        for(let prev = 0; prev < pIdx; prev++) {
+                            if (!dayEntry.data[prayers[prev].id]) {
+                                missedPrayers.push(prayers[prev].name);
+                            }
+                        }
+                        if (missedPrayers.length > 0) {
+                            showToast(`يا بطل، تذكر أن تصلي ${missedPrayers.join(' و ')} أولاً! ✨`);
+                        }
+                    }
+
                     dayEntry.data[p.id] = !dayEntry.data[p.id];
                     state.history[idx] = dayEntry;
                     openDay(idx);
@@ -441,9 +455,13 @@
         function closeModal() { save(); document.getElementById('modalOverlay').style.display = 'none'; render(); }
         function showToast(m) { 
             const t = document.createElement('div');
-            t.style = "position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.9); color:white; padding:12px 25px; border-radius:50px; z-index:5000; font-size:0.9rem; text-align:center; min-width:260px;";
+            t.style = "position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.9); color:white; padding:12px 25px; border-radius:50px; z-index:5000; font-size:0.9rem; text-align:center; min-width:260px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); animation: popIn 0.3s ease;";
             t.innerText = m; document.body.appendChild(t);
-            setTimeout(() => t.remove(), 3000);
+            setTimeout(() => {
+                t.style.opacity = '0';
+                t.style.transition = '0.5s';
+                setTimeout(() => t.remove(), 500);
+            }, 4000);
         }
         function closeCert() { state.certShown = true; save(); document.getElementById('certificateScreen').style.display = 'none'; }
         function resetChallenge() {
